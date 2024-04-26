@@ -19,7 +19,7 @@ router.post('/create_payment_url', function (req, res, next) {
 
     var date = new Date();
     //var dateFormat = require('dateformat');
-    var createDate = moment().format('YYYYMMDDhhmmss');
+    var createDate = moment().add(7, 'hours').format('YYYYMMDDhhmmss');
     const transID = Math.floor(Math.random() * 10000);
     const orderId= `${moment().format('YYMMDD')}${transID}`;
 
@@ -47,7 +47,7 @@ router.post('/create_payment_url', function (req, res, next) {
     vnp_Params['vnp_ReturnUrl'] = returnUrl;
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
-    vnp_Params['vnp_ExpireDate'] = moment().add(15, 'minutes').format('YYYYMMDDHHmmss');
+    vnp_Params['vnp_ExpireDate'] = moment().add(7, 'hours').add(15, 'minutes').format('YYYYMMDDHHmmss');
     if(bankCode !== null && bankCode !== '' && bankCode !== undefined){
         vnp_Params['vnp_BankCode'] = bankCode;
     }
@@ -81,7 +81,7 @@ router.get('/vnpay_ipn', function (req, res, next) {
     var signData = querystring.stringify(vnp_Params, { encode: false });
     var crypto = require("crypto");     
     var hmac = crypto.createHmac("sha512", secretKey);
-    var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");     
+    var signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
      
 
     if(secureHash === signed){
