@@ -1,6 +1,5 @@
 const express = require("express");
 const bodyParser = require('body-parser');
-const CryptoJS = require('crypto-js');
 const app = express();
 const port = process.env.PORT || 3001;
 const path = require('path');
@@ -14,46 +13,49 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use('/order', order);
 ////=====================================================================
-
-const config = {
-  app_id: "2554",
-  key1: "sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn",
-  key2: "trMrHtvjo6myautxDUiAcYsVtaeQ8nhf",
-};
-///////// Call back
-app.post('/callback', (req, res) => {
-  let result = {};
-
-  try {
-    let dataStr = req.body.data;
-    let reqMac = req.body.mac;
-
-    let mac = CryptoJS.HmacSHA256(dataStr, config.key2).toString();
-    console.log("mac =", mac);
-
-
-    // kiểm tra callback hợp lệ (đến từ ZaloPay server)
-    if (reqMac !== mac) {
-      // callback không hợp lệ
-      result.return_code = -1;
-      result.return_message = "mac not equal";
+function sortObject(obj) {
+	let sorted = {};
+	let str = [];
+	let key;
+	for (key in obj){
+		if (obj.hasOwnProperty(key)) {
+		str.push(encodeURIComponent(key));
+		}
+	}
+	str.sort();
+    for (key = 0; key < str.length; key++) {
+        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
     }
-    else {
-      // thanh toán thành công
-      // merchant cập nhật trạng thái cho đơn hàng
-      let dataJson = JSON.parse(dataStr, config.key2);
-      console.log("update order's status = success where app_trans_id =", dataJson["app_trans_id"]);
+    return sorted;
+}
 
-      result.return_code = 1;
-      result.return_message = "success";
-    }
-  } catch (ex) {
-    result.return_code = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
-    result.return_message = ex.message;
+app.get('/IPN', function (req, res, next) {
+  var vnp_Params = req.query;
+  var secureHash = vnp_Params['vnp_SecureHash'];
+
+  delete vnp_Params['vnp_SecureHash'];
+  delete vnp_Params['vnp_SecureHashType'];
+  let config = require('config');
+  vnp_Params = sortObject(vnp_Params);
+  var secretKey = config.get('vnp_HashSecret');
+  var querystring = require('qs');
+  var signData = querystring.stringify(vnp_Params, { encode: false });
+  var crypto = require("crypto");     
+  var hmac = crypto.createHmac("sha512", secretKey);
+  var signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
+  console.log("IPN");
+
+  if(secureHash === signed){
+      var orderId = vnp_Params['vnp_TxnRef'];
+      var rspCode = vnp_Params['vnp_ResponseCode'];
+      console.log("IPN right");
+      //Kiem tra du lieu co hop le khong, cap nhat trang thai don hang va gui ket qua cho VNPAY theo dinh dang duoi
+      res.status(200).json({RspCode: '00', Message: 'success'})
+      
   }
-
-  // thông báo kết quả cho ZaloPay server
-  res.json(result);
+  else {
+      res.status(200).json({RspCode: '97', Message: 'Fail checksum'})
+  }
 });
 
 ///=======================================================================================================
