@@ -74,7 +74,7 @@ router.get('/vnpay_ipn', function (req, res, next) {
 
     delete vnp_Params['vnp_SecureHash'];
     delete vnp_Params['vnp_SecureHashType'];
-
+    let config = require('config');
     vnp_Params = sortObject(vnp_Params);
     var secretKey = config.get('vnp_HashSecret');
     var querystring = require('qs');
@@ -100,7 +100,7 @@ router.get('/vnpay_ipn', function (req, res, next) {
  
 router.get('/vnpay_return', function (req, res, next) {
     var vnp_Params = req.query;
-
+    let config = require('config');
     var secureHash = vnp_Params['vnp_SecureHash'];
 
     delete vnp_Params['vnp_SecureHash'];
