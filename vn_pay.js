@@ -89,7 +89,7 @@ router.get('/vnpay_ipn', function (req, res, next) {
         var rspCode = vnp_Params['vnp_ResponseCode'];
         //Kiem tra du lieu co hop le khong, cap nhat trang thai don hang va gui ket qua cho VNPAY theo dinh dang duoi
         res.status(200).json({RspCode: '00', Message: 'success'})
-        console.log("oh god");
+        
     }
     else {
         res.status(200).json({RspCode: '97', Message: 'Fail checksum'})
@@ -116,10 +116,11 @@ router.get('/vnpay_return', function (req, res, next) {
     var crypto = require("crypto");     
     var hmac = crypto.createHmac("sha512", secretKey);
     var signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
-
+    console.log(secureHash);
+    console.log(signed);
     if(secureHash === signed){
         //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
-
+        console.log("oh god");
         res.render('success', {code: vnp_Params['vnp_ResponseCode']})
     } else{
         res.render('success', {code: '97'})
