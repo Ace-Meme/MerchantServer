@@ -1,6 +1,62 @@
 const express = require("express");
+const bodyParser = require('body-parser');
+const CryptoJS = require('crypto-js');
 const app = express();
 const port = process.env.PORT || 3001;
+const path = require('path');
+
+const order = require('./vn_pay');
+
+app.set('views', path.join(__dirname, 'public'));
+app.set('view engine', 'ejs');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use('/order', order);
+////=====================================================================
+
+const config = {
+  app_id: "2554",
+  key1: "sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn",
+  key2: "trMrHtvjo6myautxDUiAcYsVtaeQ8nhf",
+};
+///////// Call back
+app.post('/callback', (req, res) => {
+  let result = {};
+
+  try {
+    let dataStr = req.body.data;
+    let reqMac = req.body.mac;
+
+    let mac = CryptoJS.HmacSHA256(dataStr, config.key2).toString();
+    console.log("mac =", mac);
+
+
+    // kiểm tra callback hợp lệ (đến từ ZaloPay server)
+    if (reqMac !== mac) {
+      // callback không hợp lệ
+      result.return_code = -1;
+      result.return_message = "mac not equal";
+    }
+    else {
+      // thanh toán thành công
+      // merchant cập nhật trạng thái cho đơn hàng
+      let dataJson = JSON.parse(dataStr, config.key2);
+      console.log("update order's status = success where app_trans_id =", dataJson["app_trans_id"]);
+
+      result.return_code = 1;
+      result.return_message = "success";
+    }
+  } catch (ex) {
+    result.return_code = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
+    result.return_message = ex.message;
+  }
+
+  // thông báo kết quả cho ZaloPay server
+  res.json(result);
+});
+
+///=======================================================================================================
 
 app.get("/", (req, res) => res.type('html').send(html));
 
