@@ -22,12 +22,26 @@
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: datum
-        }).then((val) => {
+        }).then((res) => {
+            if(res.redirected){
+                console.log(res.url);
+                window.location = res.url;
+            }
             console.log("hoho");
         }).catch(console.error);
         }
-        
+        function sub(){
+            console.log("olelelelelelele");
+            document.getElementById("ole").submit();
+        }
     </script>
     <button onclick="fe()">oops</button>
+    <form action="https://merchantserver.onrender.com/order/create_payment_url" method="POST" id="ole">
+        <input type="hidden" name="amount" value=10000>
+        <input type="hidden" name="orderDescription" value='mua ve'>
+        <input type="hidden" name="orderId" value='dfdf'>
+        <input type="hidden" name="orderType" value='other'>
+        <button onclick="sub()">ultr</button>
+    </form>
 </body>
 </html>

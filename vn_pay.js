@@ -142,10 +142,15 @@ router.get('/vnpay_return', function (req, res, next) {
     console.log(signed);
     if(secureHash === signed){
         //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
-        console.log("oh god");
-        setDoc(doc(firestore, "basket_database", col_id), {state: "Đã trả tiền"}, {merge: true}).then((val) => {
-            res.render('success', {code: vnp_Params['vnp_ResponseCode']});
-        }).catch(console.error);
+        console.log(vnp_Params['vnp_ResponseCode']);
+        if(vnp_Params['vnp_ResponseCode'] == '00'){
+            setDoc(doc(firestore, "basket_database", col_id), {state: "Đã trả tiền"}, {merge: true}).then((val) => {
+                res.render('success', {code: vnp_Params['vnp_ResponseCode']});
+            }).catch(console.error);
+        }
+        else{
+            res.render('fail', {code: vnp_Params['vnp_ResponseCode']});
+        }
     } else{
         res.render('fail', {code: '97'})
     }
