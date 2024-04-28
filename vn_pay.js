@@ -1,6 +1,26 @@
 let express = require('express');
 let router = express.Router();
 const moment = require('moment');
+const { initializeApp } = require('firebase/app');
+const { getFirestore, setDoc, doc } = require("firebase/firestore");
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBY9xbzGkS5eojokY-_cyJpyJpQtabrD7c",
+  authDomain: "superchat-92a58.firebaseapp.com",
+  projectId: "superchat-92a58",
+  storageBucket: "superchat-92a58.appspot.com",
+  messagingSenderId: "777835468914",
+  appId: "1:777835468914:web:bf18e1b12fa5585a300aeb",
+  measurementId: "G-QVNFTYEHKF"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const firestore = getFirestore(app);
 
 router.post('/create_payment_url', function (req, res, next) {
     var ipAddr = req.headers['x-forwarded-for'] ||
@@ -14,15 +34,15 @@ router.post('/create_payment_url', function (req, res, next) {
     var secretKey = config.get('vnp_HashSecret');
     var vnpUrl = config.get('vnp_Url');
     var returnUrl = config.get('vnp_ReturnUrl');
-
+    
     
 
     var date = new Date();
     //var dateFormat = require('dateformat');
     var createDate = moment().add(7, 'hours').format('YYYYMMDDhhmmss');
     const transID = Math.floor(Math.random() * 10000);
-    const orderId= `${moment().format('YYMMDD')}${transID}`;
-
+    
+    const orderId= req.body.orderId;
     var amount = req.body.amount;
     var bankCode = req.body.bankCode;
     
@@ -102,6 +122,7 @@ router.get('/vnpay_ipn', function (req, res, next) {
 router.get('/vnpay_return', function (req, res, next) {
     var vnp_Params = req.query;
     let config = require('config');
+    let col_id = vnp_Params['vnp_TxnRef'];
     var secureHash = vnp_Params['vnp_SecureHash'];
 
     delete vnp_Params['vnp_SecureHash'];
@@ -122,9 +143,11 @@ router.get('/vnpay_return', function (req, res, next) {
     if(secureHash === signed){
         //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
         console.log("oh god");
-        res.render('success', {code: vnp_Params['vnp_ResponseCode']})
+        setDoc(doc(firestore, "basket_database", col_id), {state: "Đã trả tiền"}, {merge: true}).then((val) => {
+            res.render('success', {code: vnp_Params['vnp_ResponseCode']});
+        }).catch(console.error);
     } else{
-        res.render('success', {code: '97'})
+        res.render('fail', {code: '97'})
     }
 });
 

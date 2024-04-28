@@ -3,12 +3,14 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 3001;
 const path = require('path');
+let cors = require('cors');
 
 const order = require('./vn_pay');
 
 app.set('views', path.join(__dirname, 'public'));
 app.set('view engine', 'ejs');
 
+app.use(cors({origin: true}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use('/order', order);
