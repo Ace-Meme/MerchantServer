@@ -1,11 +1,34 @@
 const express = require("express");
-const bodyParser = require('body-parser');
 const app = express();
+//==================================================
+const { initializeApp } = require('firebase/app');
+const { getFirestore } = require("firebase/firestore");
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBY9xbzGkS5eojokY-_cyJpyJpQtabrD7c",
+  authDomain: "superchat-92a58.firebaseapp.com",
+  projectId: "superchat-92a58",
+  storageBucket: "superchat-92a58.appspot.com",
+  messagingSenderId: "777835468914",
+  appId: "1:777835468914:web:bf18e1b12fa5585a300aeb",
+  measurementId: "G-QVNFTYEHKF"
+};
+
+// Initialize Firebase
+const firestore = getFirestore(initializeApp(firebaseConfig));
+//=================
+const bodyParser = require('body-parser');
+
 const port = process.env.PORT || 3001;
 const path = require('path');
 let cors = require('cors');
 
 const order = require('./vn_pay');
+const customer = require('./customer');
 
 app.set('views', path.join(__dirname, 'public'));
 app.set('view engine', 'ejs');
@@ -14,6 +37,7 @@ app.use(cors({origin: true}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use('/order', order);
+app.use('/app', customer);
 ////=====================================================================
 function sortObject(obj) {
 	let sorted = {};

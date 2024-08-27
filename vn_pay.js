@@ -1,26 +1,9 @@
 let express = require('express');
 let router = express.Router();
 const moment = require('moment');
-const { initializeApp } = require('firebase/app');
 const { getFirestore, setDoc, doc } = require("firebase/firestore");
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBY9xbzGkS5eojokY-_cyJpyJpQtabrD7c",
-  authDomain: "superchat-92a58.firebaseapp.com",
-  projectId: "superchat-92a58",
-  storageBucket: "superchat-92a58.appspot.com",
-  messagingSenderId: "777835468914",
-  appId: "1:777835468914:web:bf18e1b12fa5585a300aeb",
-  measurementId: "G-QVNFTYEHKF"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const firestore = getFirestore(app);
+const firestore = getFirestore();
 
 router.post('/create_payment_url', function (req, res, next) {
     var ipAddr = req.headers['x-forwarded-for'] ||
