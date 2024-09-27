@@ -9,7 +9,7 @@ const moment = require('moment-timezone');
 
 // Get the current local time
 const timezone = "Asia/Ho_Chi_Minh";
-const targetTime = '09:00:00'; // 9 AM
+const targetTime = '04:00:00'; // 9 AM
 
 // Get the current time in the specified timezone
 const currentDateTime = moment().tz(timezone);

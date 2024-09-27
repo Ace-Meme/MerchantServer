@@ -7,7 +7,7 @@ const momenttz = require('moment-timezone');
 
 // Get the current local time
 const timezone = "Asia/Ho_Chi_Minh";
-const targetTime = '09:00:00'; // 9 AM
+const targetTime = '04:00:00'; // 9 AM
 
 const firestore = getFirestore();
 let ticket = [];
@@ -37,10 +37,10 @@ router.get("/ticket", (req, res) => {
     const isPastTargetTime = currentDateTime.isAfter(momenttz(targetTime, 'HH:mm:ss'));
     console.log(currentDateTime);
     if (isPastTargetTime) {
-        console.log('It is past 9 AM in UTC+7.');
+        console.log(`It is past ${targetTime} in UTC+7.`);
         mode = 0;
       } else {
-        console.log('It is not past 9 AM in UTC+7.');
+        console.log(`It is not past ${targetTime} in UTC+7.`);
         mode = 1;
       }
     res.json({mode: mode, ticket: ticket});
