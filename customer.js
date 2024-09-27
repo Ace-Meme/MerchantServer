@@ -3,9 +3,20 @@ let express = require('express');
 let router = express.Router();
 const moment = require('moment');
 
+const momenttz = require('moment-timezone');
+
+// Get the current local time
+const timezone = "Asia/Ho_Chi_Minh";
+const targetTime = '09:00:00'; // 9 AM
+
 const firestore = getFirestore();
 let ticket = [];
 let basket = [];
+let mode = 1;
+///////apply = 0: no discount even in special context (ignore mode)
+/////// apply = 1: discount after 9 (using mode)
+////////// apply = 2: discount optional (ignore mode)
+//// after 9, put 0; before 9, put 1
 
 const unsubTicket = onSnapshot(collection(firestore, "ticket_database"), (querySnapshot) => {
     ticket = [];
@@ -22,7 +33,16 @@ const unsubBasket = onSnapshot(collection(firestore, "basket_database"), (queryS
 });
 
 router.get("/ticket", (req, res) => {
-    res.json(ticket);
+    const currentDateTime = momenttz().tz(timezone);
+    const isPastTargetTime = currentDateTime.isAfter(momenttz(targetTime, 'HH:mm:ss'));
+    if (isPastTargetTime) {
+        console.log('It is past 9 AM in UTC+7.');
+        mode = 0;
+      } else {
+        console.log('It is not past 9 AM in UTC+7.');
+        mode = 1;
+      }
+    res.json({mode: mode, ticket: ticket});
 })
 
 router.post("/customer/basket", (req, res) => {
