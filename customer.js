@@ -35,6 +35,7 @@ const unsubBasket = onSnapshot(collection(firestore, "basket_database"), (queryS
 router.get("/ticket", (req, res) => {
     const currentDateTime = momenttz().tz(timezone);
     const isPastTargetTime = currentDateTime.isAfter(momenttz(targetTime, 'HH:mm:ss'));
+    console.log(currentDateTime);
     if (isPastTargetTime) {
         console.log('It is past 9 AM in UTC+7.');
         mode = 0;
