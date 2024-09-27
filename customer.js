@@ -7,7 +7,7 @@ const momenttz = require('moment-timezone');
 
 // Get the current local time
 const timezone = "Asia/Ho_Chi_Minh";
-const targetTime = '04:00:00'; // 9 AM
+const targetTime = '07:30:00'; // 9 AM
 
 const firestore = getFirestore();
 let ticket = [];
