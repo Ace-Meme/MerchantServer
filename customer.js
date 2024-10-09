@@ -79,6 +79,15 @@ router.post("/manager/basket/update", (req, res) => {
     });
 })
 
+router.post("/manager/basket/delete", (req, res) => {
+    deleteDoc(doc(firestore, "basket_database", req.body.id)).then((val) => {
+        res.status(201).send("success");
+    }).catch((err) => {
+        console.log(err);
+        res.status(400).send("bad request");
+    });
+})
+
 router.post("/manager/ticket/add", (req, res) => {
     //let id = "T" + moment().format('YYYYMMDDhhmmss') + "_" + Math.floor(Math.random() * 1000);
     setDoc(doc(firestore, "ticket_database", req.body.ticket_id), req.body).then((val) => {
